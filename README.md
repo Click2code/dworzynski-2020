@@ -1,9 +1,9 @@
 # Nationwide prediction of type 2 diabetes comorbidities
 Source code of analyses conducted for "Nationwide prediction of type 2 diabetes comorbidities" paper published in Nature Scientific Reports.
 
-The analysis was conducted on an airtight server with a greatly limited ability to install software - including python packages. For this reason, it was practical to develop much of the scaffolding code (specifically the pipeline framework) by hand. My intention is to publish the pipeline software as a separate package in the future. 
+The source code is kept in the same state as used during submission. Only small changes were made to remove larger sections of unused code.
 
-The code was kept in the same state as used during submission. Only small changes were made to remove larger sections of unused code.
+The analysis was conducted on an airtight server with a greatly limited ability to install software - including python packages. For this reason, it was practical to develop much of the scaffolding code (specifically the pipeline framework) by hand. If time allows, I will publish the pipeline software as a separate package in the future. 
 
 If you have any questions or suggestions, please do not hesitate to reach out.
 
@@ -25,4 +25,9 @@ Tasks are extracted automatically on pipeline execution from all python files wi
 * header code, shared for all tasks within a given file, composed of all lines of code from the beginning of a given file up to the definition tag of the first task). All variables defined in the header (e.g. `load_input_run_name`) may be overwritten by variables defined in pipeline parameters or input objects.
 * task definition code, defining the task (its name and potentially its inputs and outputs), located within two sets of `#||` tags
 
-Additionally, `#|| input` and `#|| output` annotations will mark the first word in that line as an input or output or output object of that task. When a task is executed, lines with `#|| input` annotation will not be executed (as that input object will already have been loaded by the pipeline on tasks start). These annotations are used throughout the code as they enable manual interactive task execution. 
+Additionally, `#|| input` and `#|| output` annotations will mark the first word in that line as an input or output or output object of that task. When a task is executed, lines with `#|| input` annotation will not be executed (as that input object will already have been loaded by the pipeline on tasks start). These annotations are used throughout the code as they enable manual interactive task execution.
+
+# Running the analysis
+Forskerservice provides data in SAS format. The `export_all_to_CSV.py` file generated the SAS command to export each table to CSV format. The analysis is run through execution of chunks of `T2D__to__OUTCOMES_MIX__v14.py` file - first the parameter definitions, then the actual pipeline run. The paths within this file will, naturally, need to be adjusted throughout to match the environment.
+The analysis, when run on type 2 diabetes population, has significant memory requirement of up to 600GB much of which occurs during feature pivot (transpose events from individual-event-date format to individual-features-counts format) opeartion in *Filter events and individuals* task. This operation's memory footprint could certainly be lowered if the pivot was coded interatively. Additionally, the pivot operation creates a temporary large dataframe index which can cause an integer overflow in pandas for large event frames (10^9++ of observations). For a single pipeline run the intermediate data objects generated will take around 100GB of disk space.
+Copying files to shared data storage is not performed automatically. To avoid recalculation of some of the data objects that will not differ between certain pipeline runs (e.g. if the runs differ only in outcome definition data objects generated prior to *Filter events and individuals* task can be re-used) data objects need to be manually moved to appropriate `shared_data_dir_path` directory.
