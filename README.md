@@ -29,5 +29,7 @@ Additionally, `#|| input` and `#|| output` annotations will mark the first word 
 
 # Running the analysis
 Forskerservice provides data in SAS format. The `export_all_to_CSV.py` file generated the SAS command to export each table to CSV format. The analysis is run through execution of chunks of `T2D__to__OUTCOMES_MIX__v14.py` file - first the parameter definitions, then the actual pipeline run. The paths within this file will, naturally, need to be adjusted throughout to match the environment.
+
 The analysis, when run on type 2 diabetes population, has significant memory requirement of up to 600GB much of which occurs during feature pivot (transpose events from individual-event-date format to individual-features-counts format) opeartion in *Filter events and individuals* task. This operation's memory footprint could certainly be lowered if the pivot was coded interatively. Additionally, the pivot operation creates a temporary large dataframe index which can cause an integer overflow in pandas for large event frames (10^9++ of observations). For a single pipeline run the intermediate data objects generated will take around 100GB of disk space.
+
 Copying files to shared data storage is not performed automatically. To avoid recalculation of some of the data objects that will not differ between certain pipeline runs (e.g. if the runs differ only in outcome definition data objects generated prior to *Filter events and individuals* task can be re-used) data objects need to be manually moved to appropriate `shared_data_dir_path` directory.
